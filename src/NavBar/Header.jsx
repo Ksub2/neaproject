@@ -14,7 +14,7 @@ const Header = ()=>
                 <div className='bg-gray-300'>
                     {/* LOGO section */}
                     <div className='flex justify-center h-[12vh] p-[1.5vh] md:pt-[3vh] md:w-[98vw] md:h-[20vh] md:pb-[7vh]'>
-                        <img className='' src="./nea_logo.png" alt="NEA LOGO" />
+                        <img className='' src="./public/nea_logo.png" alt="NEA LOGO" />
                     </div>
                     {/* h-[12vh] -> defines the height so p-[1.5vh] can be used to reize the image*/}
                 </div>
@@ -45,7 +45,7 @@ const Header = ()=>
                         <div className='flex'>
                             <Link
                                 to="/login"
-                                className={`text-black p-[1vw] mr-[3vw] rounded-4xl hover:bg-gray-900 hover:text-gray-300
+                                className={`text-black p-[1vw] mr-[3vw] bg-green-500 rounded-4xl hover:bg-gray-900 hover:text-gray-300 transition-all duration-300
                                 ${location.pathname === "/login"}`}
                             >
                                 Logout                                

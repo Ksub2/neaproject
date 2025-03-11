@@ -2,6 +2,7 @@ import React,{ useState } from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from './Login'
+import Register from './Register'
 import AddMeeting from './AddMeeting';
 import Home from './Home';
 
@@ -14,6 +15,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/add-meeting" element={<AddMeeting />} />
             <Route path="/login" element={<Login/>} />
+            <Route path='/Register'element={<Register/>}/>
           </Routes>
         </BrowserRouter>
       

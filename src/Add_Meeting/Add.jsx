@@ -1,43 +1,68 @@
 import React, { useState } from "react";
+import Calendar from "@sbmdkl/nepali-datepicker-reactjs";
+import "@sbmdkl/nepali-datepicker-reactjs/dist/index.css";
+import NepaliDate from "nepali-datetime"; // Import NepaliDate
 
 const Add = () => {
     // Function to convert 24-hour time to 12-hour AM/PM format
     const formatTime = (timeStr) => {
-        if (!timeStr) return ""; // Handle empty input
+        if (!timeStr) return "";
         const [hours, minutes] = timeStr.split(":");
         const hour = parseInt(hours, 10);
         const ampm = hour >= 12 ? "PM" : "AM";
-        const formattedHour = hour % 12 || 12; // Convert 0 to 12 for AM
+        const formattedHour = hour % 12 || 12;
         return `${formattedHour}:${minutes} ${ampm}`;
     };
 
-    // Add/ Edit/ Delete
+    // Function to format Nepali date for display
+    const formatNepaliDate = (bsDate) => {
+        if (!bsDate) return "";
+        const [year, month, day] = bsDate.split("-");
+        const nepaliMonths = [
+            "Baishakh", "Jestha", "Ashad", "Shrawan", "Bhadra", "Ashwin",
+            "Kartik", "Mangsir", "Poush", "Magh", "Falgun", "Chaitra"
+        ];
+        const monthName = nepaliMonths[parseInt(month, 10) - 1];
+        return `${day} ${monthName} ${year} B.S.`;
+    };
+
+    // Add/Edit/Delete Meetings
     const [meetings, setMeetings] = useState([]);
-    const [newMeeting, setNewMeeting] = useState({ date: "", type: "", location: "", description: "", time: "" });
+    const [newMeeting, setNewMeeting] = useState({
+        date: "", // Store Nepali date as a string (BS date: YYYY-MM-DD)
+        type: "",
+        location: "",
+        description: "",
+        time: "",
+    });
     const [editingIndex, setEditingIndex] = useState(null);
-    const [showManageForm, setShowManageForm] = useState(true); // For toggling form visibility
+    const [showManageForm, setShowManageForm] = useState(true);
 
     const handleChange = (e) => {
         setNewMeeting({ ...newMeeting, [e.target.name]: e.target.value });
     };
 
+    const handleDateChange = ({ bsDate }) => {
+        setNewMeeting({ ...newMeeting, date: bsDate });
+    };
+
     const handleAddOrEditMeeting = () => {
         if (editingIndex !== null) {
             const updatedMeetings = [...meetings];
-            updatedMeetings[editingIndex] = { ...newMeeting, id: new Date().toISOString() }; // Ensure unique ID
+            updatedMeetings[editingIndex] = { ...newMeeting, id: new Date().toISOString() };
             setMeetings(updatedMeetings);
             setEditingIndex(null);
         } else {
             setMeetings([...meetings, { ...newMeeting, id: new Date().toISOString() }]);
         }
-        // Reset the form and hide it
         setNewMeeting({ date: "", type: "", location: "", description: "", time: "" });
-        setShowManageForm(false); // Hide the form after adding
+        setShowManageForm(false);
     };
 
     const handleEdit = (index) => {
         setNewMeeting(meetings[index]);
         setEditingIndex(index);
+        setShowManageForm(true);
     };
 
     const handleDelete = (index) => {
@@ -45,27 +70,32 @@ const Add = () => {
     };
 
     const handleManageFormToggle = () => {
-        setShowManageForm(!showManageForm); // Toggle visibility of form
+        setShowManageForm(!showManageForm);
     };
 
     return (
         <>
-            {/* Add/ Edit/ Delete */}
+            {/* Add/Edit/Delete Form */}
             {showManageForm && (
                 <div className="absolute left-[9vw] md:left-[24vw] lg:left-[29vw] xl:left-[34vw] 
-                          right-[9vw]  md:right-[24vw] lg:right-[29vw] xl:right-[34vw] 
+                          right-[9vw] md:right-[24vw] lg:right-[29vw] xl:right-[34vw] 
                           p-[1vw] md:p-[1vw] mt-[2vh] md:mt-[6vh] 
                           w-[80vw] md:w-[50vw] lg:w-[40vw] xl:w-[30vw] 
                           bg-white shadow-2xl rounded-2xl">
-                    <h2 className="text-xl p-4 flex justify-center font-semibold mb-4">Manage Meetings</h2>
-                    <input
-                        type="date"
-                        name="date"
-                        value={newMeeting.date}
-                        onChange={handleChange}
-                        min={new Date().toISOString().split("T")[0]} // Disables past dates
-                        className="border p-2 w-full mb-2"
-                    />
+                    <h2 className="text-xl p-4 flex justify-center text-blue-500 font-semibold mb-4">
+                        Manage Meetings
+                    </h2>
+                    <div className="mb-2">
+                        <Calendar
+                            onChange={handleDateChange}
+                            value={newMeeting.date}
+                            className="border p-2 w-full"
+                            theme="deepdark"
+                            dateFormat="YYYY-MM-DD"
+                            language="en"
+                            minDate={new NepaliDate(new Date()).format("YYYY-MM-DD")} // Now works with imported NepaliDate
+                        />
+                    </div>
                     <input
                         type="text"
                         name="type"
@@ -97,7 +127,6 @@ const Add = () => {
                         onChange={handleChange}
                         className="border p-2 w-full mb-2"
                     />
-
                     <button
                         onClick={handleAddOrEditMeeting}
                         disabled={!newMeeting.date || !newMeeting.type || !newMeeting.location || !newMeeting.description || !newMeeting.time}
@@ -112,7 +141,7 @@ const Add = () => {
                 </div>
             )}
 
-            {/* Table of meetings - Move it higher */}
+            {/* Table of Meetings */}
             <div className="overflow-x-auto p-1 md:p-4 mt-[2vh] md:mt-[2vh]">
                 {meetings.length === 0 ? (
                     <p className="text-center p-4">No meetings scheduled.</p>
@@ -121,7 +150,7 @@ const Add = () => {
                         <thead>
                             <tr className="bg-gray-200">
                                 <th className="border w-[3vw] p-2">SN</th>
-                                <th className="border w-[11vw] p-2">Date</th>
+                                <th className="border w-[11vw] p-2">Date (Nepali)</th>
                                 <th className="border w-[9vw] p-2">Time</th>
                                 <th className="border w-[21vw] p-2">Meeting Type</th>
                                 <th className="border w-[22vw] p-2">Location</th>
@@ -133,16 +162,22 @@ const Add = () => {
                             {meetings.map((meeting, index) => (
                                 <tr key={meeting.id} className="text-center hover:bg-gray-100 odd:bg-white">
                                     <td className="border p-2">{index + 1}</td>
-                                    <td className="border p-2">{meeting.date}</td>
+                                    <td className="border p-2">{formatNepaliDate(meeting.date)}</td>
                                     <td className="border p-2">{formatTime(meeting.time)}</td>
                                     <td className="border p-2">{meeting.type}</td>
                                     <td className="border p-2">{meeting.location}</td>
                                     <td className="border p-2">{meeting.description}</td>
                                     <td className="border p-2">
-                                        <button onClick={() => handleEdit(index)} className="bg-yellow-500 text-white px-2 py-1 mr-2 rounded">
+                                        <button
+                                            onClick={() => handleEdit(index)}
+                                            className="bg-yellow-500 text-white px-2 py-1 mr-2 rounded"
+                                        >
                                             Edit
                                         </button>
-                                        <button onClick={() => handleDelete(index)} className="bg-red-500 text-white px-2 py-1 rounded">
+                                        <button
+                                            onClick={() => handleDelete(index)}
+                                            className="bg-red-500 text-white px-2 py-1 rounded"
+                                        >
                                             Delete
                                         </button>
                                     </td>
@@ -153,7 +188,7 @@ const Add = () => {
                 )}
             </div>
 
-            {/* Add Another Meeting Button (Below the Table) */}
+            {/* Add Another Meeting Button */}
             {!showManageForm && (
                 <div className="flex justify-center mt-4 mb-6">
                     <button
